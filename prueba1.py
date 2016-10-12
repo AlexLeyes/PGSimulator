@@ -40,13 +40,15 @@ class personaje(pygame.sprite.Sprite):
 		self.Animacion = self.listaImagenes[self.posImagen]
 		pantalla.blit(self.Animacion, self.rect)
 	def caminar (self):
+		ecla = pygame.key.get_pressed()
 		self.rect.centerx+=1
-		self.posImagen += 1
-		if self.posImagen > len(self.listaImagenes)-1:
-			self.posImagen = 0					
-		
+
 		if tecla[pygame.K_RIGHT]:
-			self.rect.centerx-=1
+			self.posImagen += 1
+			if self.posImagen > len(self.listaImagenes)-1:
+				self.posImagen = 0					
+	
+				self.rect.centerx-=1
 		
 	def mover (self):
 		tecla = pygame.key.get_pressed()
@@ -196,10 +198,13 @@ while True:
 			pos = 1
 			
 		if event.key == pygame.K_RIGHT:
+			persona.caminar()
 			perrito.caminar()
 			perrito.mover(persona)
 			vx=velocidad
 			pos = 0
+			
+			
 			
 		if event.key== pygame.K_UP:
 			perrito.caminar()
