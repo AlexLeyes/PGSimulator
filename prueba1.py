@@ -6,7 +6,6 @@ pygame.init()
 pygame.display.set_caption("Juego")
 
 pantalla=pygame.display.set_mode((300,300))
-tecla = pygame.key.get_pressed()
 
 class background(pygame.sprite.Sprite):
 	def __init__(self):
@@ -36,30 +35,33 @@ class personaje(pygame.sprite.Sprite):
 
 		self.rect.centerx = 200
 		self.rect.centery = 500
+		
 	def dibujar(self):
 		self.Animacion = self.listaImagenes[self.posImagen]
 		pantalla.blit(self.Animacion, self.rect)
 	def caminar (self):
-		ecla = pygame.key.get_pressed()
+		tecla = pygame.key.get_pressed()
 		self.rect.centerx+=1
 
-		if tecla[pygame.K_RIGHT]:
+		if tecla[pygame.K_RIGHT]:				
+			self.rect.centerx-=1
+			
 			self.posImagen += 1
 			if self.posImagen > len(self.listaImagenes)-1:
-				self.posImagen = 0					
-	
-				self.rect.centerx-=1
-		
+				self.posImagen = 0
+						
 	def mover (self):
 		tecla = pygame.key.get_pressed()
-		dist = 5
+		dist = 2
 		if tecla[pygame.K_DOWN]:
-			self.rect.centery+=dist
-		elif tecla[pygame.K_UP]:
-			self.rect.centery-=dist
+			if self.rect.centery < 500:
+				self.rect.centery+=50	
+		if tecla[pygame.K_UP]:
+			if self.rect.centery > 400: 
+				self.rect.centery-=50
 		if tecla[pygame.K_RIGHT]:
 			self.rect.centerx+=dist 
-		elif tecla[pygame.K_LEFT]:
+		if tecla[pygame.K_LEFT]:
 			self.rect.centerx -=dist
 		
 		
@@ -200,11 +202,8 @@ while True:
 		if event.key == pygame.K_RIGHT:
 			persona.caminar()
 			perrito.caminar()
-			perrito.mover(persona)
 			vx=velocidad
 			pos = 0
-			
-			
 			
 		if event.key== pygame.K_UP:
 			perrito.caminar()
