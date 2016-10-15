@@ -25,14 +25,47 @@ class personaje(pygame.sprite.Sprite):
         self.rect.centery = alto-100
         
         self.Vida = True
-        self.velocidad = 1      
+        
         #cosas para animar
+        self.velocidad = 1      
         self.posCamina = 0
         self.retardo = 0
     
     def dibujar(self, superficie):
        ventana.blit(self.ImagenPersonaje, self.rect)
-
+       
+       
+    def animarCaminar(self):  
+        self.retardo+=1
+        if self.retardo == 5:
+            self.rect.centerx += self.velocidad
+            self.ImagenPersonaje = pygame.image.load("Images/nene1.png")
+        if self.retardo == 10:
+            self.rect.centerx += self.velocidad
+            self.ImagenPersonaje = pygame.image.load("Images/nene2.png")
+        if self.retardo == 15:
+            self.rect.centerx += self.velocidad
+            self.ImagenPersonaje = pygame.image.load("Images/nene3.png")
+            self.retardo = 0
+                      
+    def restringeMovimiento(self):
+        if self.Vida == True:
+            if self.rect.left > (ancho-75):
+                self.rect.left = (ancho-75)
+                print "Restringe borde Izquierdo, Vida menos"
+           
+            elif self.rect.right < 75:
+                self.rect.right = 75
+                print "Restringe borde Derecho"
+                
+            elif self.rect.top < 315:
+                self.rect.top = 315
+                print "Restringe borde Superior"
+            
+            elif self.rect.bottom > alto-10:
+                self.rect.bottom = alto-10
+                print "Restringe borde Inferior"        
+            
 
 class perro(pygame.sprite.Sprite):
     """Clase del Perro"""
@@ -41,18 +74,13 @@ class perro(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.ImagenPerro = pygame.image.load("Images/dog1.png")
         
-              
-        #self.caminaArriba = (pygame.image.load("Images/dog1.png"), pygame.image.load("Images/dog2.png"))
-        #self.caminaAbajo = (pygame.image.load("Images/dog1.png"), pygame.image.load("Images/dog2.png"))
-        
         self.rect = self.ImagenPerro.get_rect()
         self.rect.centerx = ancho/2
         self.rect.centery = alto-100
         
         self.Vida = True
         self.velocidad = 5
-        
-        
+               
         #cosas para animar
         self.posCamina = 0;  
     
@@ -62,7 +90,6 @@ class perro(pygame.sprite.Sprite):
     def dibujar(self, superficie):
        ventana.blit(self.ImagenPerro, self.rect)
      
-    
     def restringeMovimiento(self):
         if self.Vida == True:
             if self.rect.left > (ancho-75):
@@ -88,8 +115,8 @@ class perro(pygame.sprite.Sprite):
 
         if pos == 1:
             self.Animacion2 = pygame.transform.flip(self.Animacion,True,False)
-            ventana.blit(self.Animacion2, self.rect)
-
+            ventana.blit(self.Animacion2, self.rect)         
+            
 
 def PgsSimulator():
    
@@ -99,13 +126,20 @@ def PgsSimulator():
     jugador = perro()
     enJuego = True  
     
+    
+    
+    
     while True:      
+        nene.restringeMovimiento()
+        nene.animarCaminar()
         
         
-        nene.rect.centerx += nene.velocidad
+        if nene.rect.colliderect(jugador.rect):
+            print "Chocan en posicion estatica"
+            nene.rect.centerx +=-1
+            nene.ImagenPersonaje = pygame.image.load("Images/nene1.png") 
         
         
-          
         for evento in pygame.event.get(): #mainPrincipal    
             
             
@@ -113,7 +147,6 @@ def PgsSimulator():
                 pygame.quit()
                 sys.exit()
                 
-            
             jugador.restringeMovimiento()
             
             if enJuego == True:
@@ -126,15 +159,26 @@ def PgsSimulator():
                         if jugador.posCamina <= 5:
                             jugador.ImagenPerro = pygame.transform.flip(pygame.image.load("Images/dog1.png"),True,False)
                             jugador.posCamina +=1
+                            if nene.rect.colliderect(jugador.rect):
+                                print "Empuja nene a la izquierda"
+                                nene.rect.centerx +=0
+                                jugador.rect.centerx +=8    
                             
                         elif jugador.posCamina > 5:
                             jugador.ImagenPerro = pygame.transform.flip(pygame.image.load("Images/dog2.png"),True,False)
-                            jugador.posCamina +=1
+                            jugador.posCamina -=1
+                            if nene.rect.colliderect(jugador.rect):
+                                print "Empuja nene a la izquierda"
+                                nene.rect.centerx -=1
+                                jugador.rect.centerx +=8   
                         
                         if jugador.posCamina > 10:
                             jugador.ImagenPerro = pygame.transform.flip(pygame.image.load("Images/dog1.png"),True,False)
                             jugador.posCamina = 0
-                        
+                            if nene.rect.colliderect(jugador.rect):
+                                print "Empuja nene a la izquierda"
+                                nene.rect.centerx -=1
+                                jugador.rect.centerx +=8    
                                                 
                         
                     elif evento.key == K_RIGHT:
@@ -151,10 +195,15 @@ def PgsSimulator():
                         if jugador.posCamina > 10:
                             jugador.ImagenPerro = pygame.image.load("Images/dog1.png")
                             jugador.posCamina = 0
+                            
+                        if nene.rect.colliderect(jugador.rect):
+                            print "Empuja nene a la derecha"
+                            nene.rect.centerx +=2
+                            jugador.rect.centerx -=5          
                         
                         
                     elif evento.key == K_UP:
-                        print "Perro a la dercha"
+                        print "Perro arriba"
                         jugador.rect.centery -= jugador.velocidad
                         if jugador.posCamina <= 5:
                             jugador.ImagenPerro = pygame.image.load("Images/dogBack.png")
@@ -165,10 +214,16 @@ def PgsSimulator():
                         
                         if jugador.posCamina > 10:
                             jugador.ImagenPerro = pygame.image.load("Images/dogBack.png")
-                            jugador.posCamina = 0          
+                            jugador.posCamina = 0    
+                            
+                            #EMPUJAR AL NENE ARRIBA
+                        if nene.rect.colliderect(jugador.rect):
+                            print "Empuja nene arriba"
+                            nene.rect.centery -=5
+                            jugador.rect.centery +=5     
                         
                     elif evento.key == K_DOWN:
-                        print "Perro a la dercha"
+                        print "Perro abajo"
                         jugador.rect.centery += jugador.velocidad
                         if jugador.posCamina <= 5:
                             jugador.ImagenPerro = pygame.image.load("Images/dogFront.png")
@@ -179,8 +234,13 @@ def PgsSimulator():
                         
                         if jugador.posCamina > 10:
                             jugador.ImagenPerro = pygame.image.load("Images/dogFront.png")
-                            jugador.posCamina = 0       
-
+                            jugador.posCamina = 0   
+                            
+                            #EMPUJAR AL NENE ARRIBA
+                        if nene.rect.colliderect(jugador.rect):
+                            print "Empuja nene abajo"
+                            nene.rect.centery +=5
+                            jugador.rect.centery -=5           
         #cielo
         ventana.fill(celeste) 
         #pasto
